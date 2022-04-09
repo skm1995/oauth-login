@@ -21,13 +21,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'guid')]
+    #[ORM\Column(type: 'guid', unique: true)]
     private $uuid;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     private $email;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     private $username;
 
     #[ORM\Column(type: 'json')]
@@ -35,6 +35,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string')]
     private $password;
+
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: UserFacebook::class, cascade: ['persist', 'remove'])]
+    private $userFacebook;
 
     public function __construct()
     {
@@ -126,5 +129,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getUserFacebook(): ?UserFacebook
+    {
+        return $this->userFacebook;
+    }
+
+    public function setUserFacebook(UserFacebook $userFacebook): self
+    {
+        // set the owning side of the relation if necessary
+        if ($userFacebook->getUser() !== $this) {
+            $userFacebook->setUser($this);
+        }
+
+        $this->userFacebook = $userFacebook;
+
+        return $this;
     }
 }
